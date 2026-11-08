@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Приёмка: акт за 5 минут</title>
+<meta name="theme-color" content="#0B1630">
+<link rel="manifest" href="priemka.webmanifest">
+<link rel="apple-touch-icon" href="priemka-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{--bg:#F3F6FB;--card:#fff;--ink:#14203A;--mut:#5E6C86;--line:#E2E8F2;--acc:#2F8FF0;--acc2:#7CC8FF;--dark:#0B1630;--ok:#1FA971;--bad:#E5484D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Manrope,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+.top{position:sticky;top:0;z-index:5;background:var(--dark);color:#fff;padding:14px 16px calc(14px);display:flex;align-items:center;gap:12px}
+.top h1{font-size:18px;font-weight:800;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top small{display:block;font-size:12px;font-weight:600;color:#9FB4D6}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:18px;display:grid;place-items:center;cursor:pointer;flex:none}
+main{max-width:720px;margin:0 auto;padding:16px 16px 110px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.hero{background:linear-gradient(135deg,#0B1630,#1C3A6E);color:#fff;border:0}
+.hero h2{font-size:22px;font-weight:800;line-height:1.2}
+.hero p{color:#B9C8E2;font-size:14px;margin-top:6px;line-height:1.45}
+.row{display:flex;align-items:center;gap:12px}
+.list-item{display:flex;align-items:center;gap:12px;cursor:pointer}
+.list-item .t{flex:1;min-width:0}
+.list-item b{display:block;font-size:16px}
+.list-item span{font-size:13px;color:var(--mut)}
+.badge{font-size:13px;font-weight:800;padding:5px 10px;border-radius:20px;background:#EAF3FE;color:var(--acc);flex:none}
+.badge.z{background:#EEF1F6;color:var(--mut)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:14px;padding:15px;font-weight:800;font-size:16px;cursor:pointer;background:var(--acc);color:#fff}
+.btn.sec{background:#EAF3FE;color:var(--acc)}
+.btn.ghost{background:transparent;border:1.5px dashed #BFD0E6;color:var(--mut)}
+.btn.dark{background:var(--dark)}
+.btn:disabled{opacity:.5}
+.fab{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:688px;margin:0 auto;box-shadow:0 10px 30px rgba(47,143,240,.4);z-index:6}
+label{display:block;font-size:13px;font-weight:700;color:var(--mut);margin:12px 0 6px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#fff;font-size:16px}
+textarea{min-height:84px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:8px 14px;font-weight:700;font-size:14px;cursor:pointer}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.sug{display:grid;gap:6px;margin-top:8px}
+.sug button{text-align:left;border:0;background:#F3F6FB;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer}
+.photo-in{border:2px dashed #BFD0E6;border-radius:16px;min-height:170px;display:grid;place-items:center;cursor:pointer;overflow:hidden;background:#F8FAFD;text-align:center;color:var(--mut);font-weight:700}
+.photo-in img{width:100%;max-height:300px;object-fit:cover;display:block}
+.def{display:flex;gap:12px;align-items:flex-start}
+.def img,.def .ph{width:84px;height:68px;border-radius:10px;object-fit:cover;flex:none;background:linear-gradient(135deg,#B9C3D3,#7F8BA0)}
+.def .t{flex:1;min-width:0}
+.def b{font-size:15px}
+.def p{font-size:14px;color:var(--mut);margin-top:2px}
+.del{border:0;background:none;color:#A3AEC2;font-size:20px;cursor:pointer;padding:4px}
+.mic{flex:none;width:48px;border:0;border-radius:12px;background:#EAF3FE;color:var(--acc);font-size:20px;cursor:pointer}
+.mic.rec{background:var(--bad);color:#fff;animation:p 1s infinite}
+@keyframes p{50%{opacity:.6}}
+.helper{background:#0B1630;color:#fff;border-radius:16px;padding:14px;margin-top:12px;font-size:14px;line-height:1.45}
+.helper b{color:#7CC8FF}
+.note{font-size:13px;color:var(--mut);text-align:center;margin-top:8px}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;font-size:14px;z-index:20;opacity:0;transition:.3s;pointer-events:none}
+.toast.on{opacity:1}
+.empty{text-align:center;color:var(--mut);padding:30px 10px;font-weight:600}
+/* акт */
+.act-wrap{overflow:hidden;background:#DDE3EE;border-radius:16px;padding:12px}
+#act{width:794px;background:#fff;color:#14203A;padding:44px 48px;font-family:Manrope,Arial,sans-serif;margin:0 auto}
+#act .h{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #14203A;padding-bottom:14px}
+#act .co{font-size:20px;font-weight:800}
+#act .co small{display:block;font-size:12px;font-weight:600;color:#5E6C86;margin-top:2px}
+#act .dt{text-align:right;font-size:12px;color:#5E6C86;font-weight:600}
+#act h3{font-size:24px;font-weight:800;letter-spacing:.04em;text-align:center;margin:22px 0 14px}
+#act table.info{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px}
+#act table.info td{border:1px solid #DDE3EE;padding:7px 10px}
+#act table.info td:first-child{background:#F3F6FB;font-weight:700;width:34%}
+#act .room{font-size:16px;font-weight:800;margin:18px 0 8px;padding:6px 10px;background:#EAF3FE;border-radius:6px}
+#act .d{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid #E2E8F2;break-inside:avoid;page-break-inside:avoid}
+#act .d .n{font-weight:800;width:26px;flex:none}
+#act .d img{width:190px;height:142px;object-fit:cover;border-radius:6px;flex:none}
+#act .d .ph{width:190px;height:142px;border-radius:6px;flex:none;background:#E9EDF4}
+#act .d b{font-size:14px;display:block}
+#act .d p{font-size:13px;color:#33415C;margin-top:4px;line-height:1.4}
+#act .d em{display:inline-block;font-style:normal;font-size:11px;font-weight:800;color:#2F8FF0;background:#EAF3FE;padding:3px 7px;border-radius:5px;margin-top:6px}
+#act .sum{margin-top:18px;font-size:14px;font-weight:700;break-inside:avoid}
+#act .sig{display:flex;justify-content:space-between;margin-top:46px;font-size:12px;color:#5E6C86;break-inside:avoid}
+#act .sig div{width:44%;border-top:1px solid #14203A;padding-top:6px}
+#act .foot{margin-top:24px;font-size:10px;color:#9AA6BA;text-align:center}
+</style>
+</head><body>
+<div class="top" id="top"></div>
+<main id="app"></main>
+<div class="toast" id="toast"></div>
+<input type="file" id="file" accept="image/*" capture="environment" hidden>
+
+<script>
+/* ===== данные ===== */
+const KEY='priemka-v1';
+const ROOMS=['Кухня','Комната 1','Комната 2','Санузел','Ванная','Коридор','Балкон'];
+const CATS={
+ 'Стены':['Отклонение стены от вертикали','Неровность поверхности стены','Трещина в штукатурке','Загрязнение поверхности'],
+ 'Пол':['Перепад стяжки','Трещина стяжки','Неровность основания пола','Повреждение покрытия пола'],
+ 'Потолок':['Трещина на потолке','Неровность потолка','Следы протечки на потолке'],
+ 'Окна':['Не отрегулирована створка','Царапина на стеклопакете','Повреждение уплотнителя','Продувание по периметру рамы'],
+ 'Двери':['Дверь закрывается неплотно','Повреждение дверного полотна','Перекос дверной коробки'],
+ 'Плитка':['Скол плитки','Неравномерная ширина швов','Пустоты под плиткой при простукивании'],
+ 'Сантехника':['Подтекание соединения','Прибор закреплён ненадёжно','Недостаточный уклон к трапу'],
+ 'Электрика':['Не работает розетка','Розетка закреплена ненадёжно','Не работает выключатель']
+};
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||null}catch(e){return null}};
+let S=load()||{settings:{company:'Ваша компания',engineer:'',phone:''},items:[]};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Память телефона заполнена, удалите старые осмотры')}};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>new Date().toLocaleDateString('ru-RU');
+const cnt=i=>i.rooms.reduce((a,r)=>a+r.defects.length,0);
+// демо-фото: сначала .webp, потом .jpg, потом серая заглушка
+function imgFail(el){if(/\.webp$/.test(el.src)&&!el.dataset.t){el.dataset.t=1;el.src=el.src.replace(/\.webp$/,'.jpg')}else el.outerHTML='<div class="ph"></div>'}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200)}
+
+/* ===== навигация ===== */
+let V={name:'home'};
+function go(v){V=v;render();scrollTo(0,0)}
+function bar(title,sub,back,right=''){
+ document.getElementById('top').innerHTML=(back?`<button class="icon-btn" onclick="${back}">←</button>`:'')+
+ `<h1>${esc(title)}${sub?`<small>${esc(sub)}</small>`:''}</h1>${right}`}
+function render(){({home,settings,insp,newInsp,room,defect,act})[V.name]()}
+const A=document.getElementById('app');
+
+/* ===== главный ===== */
+function home(){
+ bar('Приёмка',S.settings.company,'',`<button class="icon-btn" onclick="go({name:'settings'})">⚙</button>`);
+ A.innerHTML=`
+ <div class="card hero"><h2>Акт приёмки за 5 минут</h2><p>Фотографируете дефект, выбираете замечание или говорите голосом. Акт PDF с фото собирается сам.</p></div>
+ ${S.items.length?S.items.map(i=>`<div class="card list-item" onclick="go({name:'insp',id:'${i.id}'})">
+   <div class="t"><b>${esc(i.addr||'Без адреса')}${i.flat?', кв. '+esc(i.flat):''}</b><span>${esc(i.date)} · ${esc(i.client||'заказчик не указан')}</span></div>
+   <div class="badge ${cnt(i)?'':'z'}">${cnt(i)}</div></div>`).join('')
+ :`<div class="empty">Осмотров пока нет.<br>Начните новый или посмотрите пример.</div>`}
+ <button class="btn ghost" onclick="demo()">Загрузить пример осмотра</button>
+ <button class="btn fab" onclick="go({name:'newInsp'})">＋ Новый осмотр</button>`}
+
+function settings(){
+ bar('Настройки','шапка акта',"go({name:'home'})");
+ const s=S.settings;
+ A.innerHTML=`<div class="card">
+ <label>Название компании</label><input id="s1" value="${esc(s.company)}">
+ <label>Инженер</label><input id="s2" value="${esc(s.engineer)}" placeholder="Имя Фамилия">
+ <label>Телефон</label><input id="s3" value="${esc(s.phone)}" placeholder="+7 ...">
+ </div><p class="note">Эти данные будут в шапке каждого акта</p>
+ <button class="btn fab" onclick="S.settings={company:s1.value||'Ваша компания',engineer:s2.value,phone:s3.value};save();toast('Сохранено');go({name:'home'})">Сохранить</button>`}
+
+/* ===== новый осмотр ===== */
+function newInsp(){
+ bar('Новый осмотр','',"go({name:'home'})");
+ A.innerHTML=`<div class="card">
+ <label>Адрес / ЖК</label><input id="f1" placeholder="ЖК Северный, ул. Лесная, 12">
+ <div class="grid2"><div><label>Квартира</label><input id="f2" inputmode="numeric" placeholder="87"></div>
+ <div><label>Площадь, м²</label><input id="f3" inputmode="decimal" placeholder="64,2"></div></div>
+ <label>Заказчик</label><input id="f4" placeholder="Иванова Анна">
+ <label>Застройщик</label><input id="f5" placeholder="необязательно">
+ <label>Помещения</label><div class="chips" id="rc">${ROOMS.map((r,k)=>`<button class="chip ${k<5&&k!=4?'on':''}" onclick="this.classList.toggle('on')">${r}</button>`).join('')}</div>
+ </div>
+ <button class="btn fab" onclick="createInsp()">Начать осмотр</button>`}
+function createInsp(){
+ const rooms=[...document.querySelectorAll('#rc .chip.on')].map(b=>({id:uid(),name:b.textContent,defects:[]}));
+ const i={id:uid(),addr:f1.value.trim(),flat:f2.value.trim(),area:f3.value.trim(),client:f4.value.trim(),dev:f5.value.trim(),date:today(),rooms};
+ S.items.unshift(i);save();go({name:'insp',id:i.id})}
+
+/* ===== осмотр ===== */
+const I=()=>S.items.find(x=>x.id===V.id);
+function insp(){
+ const i=I();if(!i)return go({name:'home'});
+ bar(i.addr||'Осмотр',(i.flat?'кв. '+i.flat+' · ':'')+cnt(i)+' замечаний',"go({name:'home'})",`<button class="icon-btn" onclick="delInsp()">🗑</button>`);
+ A.innerHTML=i.rooms.map(r=>`<div class="card list-item" onclick="go({name:'room',id:'${i.id}',room:'${r.id}'})">
+   <div class="t"><b>${esc(r.name)}</b><span>${r.defects.length?r.defects.slice(0,2).map(d=>esc(d.text)).join(' · '):'замечаний нет'}</span></div>
+   <div class="badge ${r.defects.length?'':'z'}">${r.defects.length}</div></div>`).join('')+
+ `<button class="btn ghost" onclick="addRoom()">＋ Добавить помещение</button>
+ <button class="btn fab dark" onclick="go({name:'act',id:'${i.id}'})" ${cnt(i)?'':'disabled'}>📄 Сформировать акт</button>`}
+function addRoom(){const n=prompt('Название помещения','Гардеробная');if(!n)return;I().rooms.push({id:uid(),name:n,defects:[]});save();render()}
+function delInsp(){if(!confirm('Удалить этот осмотр?'))return;S.items=S.items.filter(x=>x.id!==V.id);save();go({name:'home'})}
+
+/* ===== помещение ===== */
+const R=()=>I()?.rooms.find(r=>r.id===V.room);
+function room(){
+ const i=I(),r=R();if(!r)return go({name:'insp',id:V.id});
+ bar(r.name,i.addr+(i.flat?', кв. '+i.flat:''),`go({name:'insp',id:'${i.id}'})`);
+ A.innerHTML=(r.defects.length?r.defects.map((d,k)=>`<div class="card def">
+   ${d.photo?`<img src="${d.photo}" onerror="imgFail(this)">`:'<div class="ph"></div>'}
+   <div class="t"><b>${k+1}. ${esc(d.text)}</b><p>${esc(d.cat)}${d.mm?' · '+esc(d.mm)+' мм':''}${d.note?' · '+esc(d.note):''}</p></div>
+   <button class="del" onclick="delDef('${d.id}')">✕</button></div>`).join('')
+ :`<div class="empty">В этом помещении замечаний пока нет</div>`)+
+ `<button class="btn fab" onclick="go({name:'defect',id:'${i.id}',room:'${r.id}'})">📷 Добавить замечание</button>`}
+function delDef(id){const r=R();r.defects=r.defects.filter(d=>d.id!==id);save();render()}
+
+/* ===== замечание ===== */
+let D={};
+function defect(){
+ const r=R();D={cat:'Стены',text:'',mm:'',note:'',photo:''};
+ bar('Замечание',r.name,`go({name:'room',id:'${V.id}',room:'${V.room}'})`);
+ A.innerHTML=`<div class="photo-in" id="pin" onclick="file.click()">📷<br>Сфотографировать дефект</div>
+ <div class="card" style="margin-top:12px">
+ <label>Что проверяем</label><div class="chips" id="cats">${Object.keys(CATS).map(c=>`<button class="chip ${c==='Стены'?'on':''}" onclick="setCat('${c}',this)">${c}</button>`).join('')}</div>
+ <label>Замечание</label>
+ <div class="row"><input id="dt" placeholder="Выберите ниже или скажите голосом" oninput="D.text=this.value;help()"><button class="mic" id="mic" onclick="voice()">🎙</button></div>
+ <div class="sug" id="sug"></div>
+ <div class="grid2"><div><label>Отклонение, мм</label><input id="dm" inputmode="decimal" placeholder="если есть" oninput="D.mm=this.value;help()"></div>
+ <div><label>Где именно</label><input id="dn" placeholder="у окна, слева" oninput="D.note=this.value"></div></div>
+ <div class="helper" id="help"></div>
+ </div>
+ <button class="btn fab" onclick="saveDef()">Сохранить замечание</button>`;
+ sug();help()}
+function setCat(c,b){D.cat=c;document.querySelectorAll('#cats .chip').forEach(x=>x.classList.toggle('on',x===b));sug();help()}
+function sug(){document.getElementById('sug').innerHTML=CATS[D.cat].map(t=>`<button onclick="pick(this)">${t}</button>`).join('')}
+function pick(b){D.text=b.textContent;dt.value=D.text;help()}
+function help(){
+ const h=document.getElementById('help');if(!h)return;
+ let t='<b>Подсказка:</b> ';
+ if(!D.photo)t+='начните с фото, так замечание будет бесспорным.';
+ else if(!D.text)t+='выберите замечание из списка или нажмите 🎙 и скажите своими словами.';
+ else if(/отклонен|неровн|перепад/i.test(D.text)&&!D.mm)t+='укажите отклонение в миллиметрах и базу измерения, например «6 мм на 2 м». Так акт сложнее оспорить.';
+ else if(!D.note)t+='допишите, где именно дефект, например «у окна, слева». Застройщику будет проще найти.';
+ else t+='всё готово, можно сохранять ✅';
+ h.innerHTML=t}
+file.onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{
+ const m=1100,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;
+ c.getContext('2d').drawImage(im,0,0,c.width,c.height);D.photo=c.toDataURL('image/jpeg',.72);
+ document.getElementById('pin').innerHTML=`<img src="${D.photo}">`;help()};im.src=rd.result};rd.readAsDataURL(f);file.value=''};
+function voice(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR)return toast('Голосовой ввод работает в Chrome на Android');
+ const r=new SR();r.lang='ru-RU';r.interimResults=false;mic.classList.add('rec');
+ r.onresult=e=>{const t=e.results[0][0].transcript;D.text=t.charAt(0).toUpperCase()+t.slice(1);dt.value=D.text;
+   const mm=t.match(/(\d+[.,]?\d*)\s*(мм|миллиметр)/i);if(mm){D.mm=mm[1];dm.value=mm[1]}help()};
+ r.onend=()=>mic.classList.remove('rec');r.onerror=()=>{mic.classList.remove('rec');toast('Не расслышала, попробуйте ещё раз')};r.start()}
+function saveDef(){
+ if(!D.text.trim())return toast('Напишите или выберите замечание');
+ R().defects.push({id:uid(),...D,text:D.text.trim()});save();toast('Замечание добавлено');go({name:'room',id:V.id,room:V.room})}
+
+/* ===== акт ===== */
+function actHTML(i){
+ const s=S.settings;let n=0;
+ return `<div id="act">
+ <div class="h"><div class="co">${esc(s.company)}<small>${esc(s.engineer)}${s.phone?' · '+esc(s.phone):''}</small></div><div class="dt">Дата осмотра<br><b style="color:#14203A;font-size:14px">${esc(i.date)}</b></div></div>
+ <h3>АКТ ОСМОТРА КВАРТИРЫ</h3>
+ <table class="info">
+ <tr><td>Адрес</td><td>${esc(i.addr)}${i.flat?', кв. '+esc(i.flat):''}</td></tr>
+ ${i.area?`<tr><td>Площадь</td><td>${esc(i.area)} м²</td></tr>`:''}
+ ${i.client?`<tr><td>Заказчик</td><td>${esc(i.client)}</td></tr>`:''}
+ ${i.dev?`<tr><td>Застройщик</td><td>${esc(i.dev)}</td></tr>`:''}
+ <tr><td>Выявлено замечаний</td><td><b>${cnt(i)}</b></td></tr></table>
+ ${i.rooms.filter(r=>r.defects.length).map(r=>`<div class="room">${esc(r.name)}</div>`+r.defects.map(d=>`<div class="d"><div class="n">${++n}.</div>
+   ${d.photo?`<img src="${d.photo}" onerror="imgFail(this)">`:'<div class="ph"></div>'}
+   <div><b>${esc(d.text)}</b><p>${d.mm?'Отклонение: '+esc(d.mm)+' мм. ':''}${d.note?'Место: '+esc(d.note)+'.':''}</p><em>${esc(d.cat)}</em></div></div>`).join('')).join('')}
+ <div class="sum">Всего выявлено замечаний: ${cnt(i)}. Застройщику рекомендуется устранить замечания до подписания акта приёма-передачи.</div>
+ <div class="sig"><div>Инженер ${esc(s.engineer)}</div><div>Заказчик ${esc(i.client)}</div></div>
+ <div class="foot">Акт сформирован в приложении «Приёмка»</div></div>`}
+function act(){
+ const i=I();
+ bar('Акт осмотра',cnt(i)+' замечаний',`go({name:'insp',id:'${i.id}'})`);
+ A.innerHTML=`<div class="act-wrap"><div id="zoomer">${actHTML(i)}</div></div>
+ <div style="display:grid;gap:10px;margin-top:12px"><button class="btn sec" onclick="pdf(false)">⬇ Скачать PDF</button></div>
+ <button class="btn fab" onclick="pdf(true)">📤 Отправить заказчику</button>`;
+ const w=document.querySelector('.act-wrap').clientWidth-24;document.getElementById('zoomer').style.zoom=Math.min(1,w/794)}
+async function pdf(share){
+ const i=I(),el=document.getElementById('act');
+ const name=`Акт ${i.addr||''} кв ${i.flat||''}.pdf`.replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,' ');
+ const opt={margin:0,filename:name,image:{type:'jpeg',quality:.9},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']},pagebreak:{mode:['css','legacy'],avoid:['.d','.sum','.sig']}};
+ toast('Собираю PDF…');
+ if(share&&navigator.canShare){const blob=await html2pdf().set(opt).from(el).outputPdf('blob');const f=new File([blob],name,{type:'application/pdf'});
+   if(navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'Акт осмотра'})}catch(e){}return}}
+ html2pdf().set(opt).from(el).save()}
+
+/* ===== пример ===== */
+function demo(){
+ const P=n=>`priemka-demo-${n}.webp`;
+ const i={id:uid(),addr:'ЖК Северный, ул. Лесная, 12',flat:'87',area:'64,2',client:'Иванова Анна',dev:'',date:today(),rooms:[
+  {id:uid(),name:'Кухня',defects:[{id:uid(),cat:'Стены',text:'Отклонение стены от вертикали',mm:'6',note:'стена у окна, база 2 м',photo:P(1)}]},
+  {id:uid(),name:'Комната 1',defects:[{id:uid(),cat:'Окна',text:'Не отрегулирована створка',mm:'',note:'левая створка',photo:P(3)}]},
+  {id:uid(),name:'Санузел',defects:[{id:uid(),cat:'Плитка',text:'Скол плитки',mm:'',note:'у ванны',photo:P(5)}]},
+  {id:uid(),name:'Коридор',defects:[{id:uid(),cat:'Пол',text:'Перепад стяжки',mm:'4',note:'база 2 м',photo:P(7)}]}]};
+ S.items.unshift(i);save();toast('Пример загружен');go({name:'insp',id:i.id})}
+
+render();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('priemka-sw.js').catch(()=>{});
+</script>
+</body></html>
