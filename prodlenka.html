@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Продлёнка в телефоне</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: слева пояснение для показа клиенту, справа два телефона рядом (родитель и педагог); на узком экране один телефон на всю ширину и переключатель ролей */
+:root{
+  --bg:#EDF2F7; --grid:#DCE4EE; --surface:#FFFFFF; --surface2:#F4F7FB; --ink:#17223A; --muted:#5A6A80; --line:#D6DFEA;
+  --accent:#F07B2B; --accent-ink:#2B1503; --accent-soft:#FDE7D6; --sky:#2F7FD0; --sky-soft:#E1EEFB;
+  --ok:#1C9467; --ok-soft:#DDF3EA; --warn:#C27712; --warn-soft:#FBEFD9; --off:#8A97A8;
+  --max:#5B5BF0; --tg:#229ED9; --sms:#4E7A63;
+  --frame:#1B2232; --shadow:0 24px 60px -28px rgba(23,34,58,.45);
+  --display:"Nunito","Arial Rounded MT Bold",system-ui,sans-serif;
+  --body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1420; --grid:#182030; --surface:#182132; --surface2:#1E293C; --ink:#E7EDF6; --muted:#9AA8BC; --line:#2A3650;
+  --accent:#FF9A55; --accent-ink:#2B1503; --accent-soft:#3A2617; --sky:#6FB0F2; --sky-soft:#1A2D45;
+  --ok:#4FCB97; --ok-soft:#173327; --warn:#F0B04E; --warn-soft:#3A2C14; --off:#6E7B8F;
+  --max:#8C8CFF; --tg:#4DB8EA; --sms:#7FB394; --frame:#05070C; --shadow:0 24px 60px -28px rgba(0,0,0,.8); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1420; --grid:#182030; --surface:#182132; --surface2:#1E293C; --ink:#E7EDF6; --muted:#9AA8BC; --line:#2A3650;
+  --accent:#FF9A55; --accent-ink:#2B1503; --accent-soft:#3A2617; --sky:#6FB0F2; --sky-soft:#1A2D45;
+  --ok:#4FCB97; --ok-soft:#173327; --warn:#F0B04E; --warn-soft:#3A2C14; --off:#6E7B8F;
+  --max:#8C8CFF; --tg:#4DB8EA; --sms:#7FB394; --frame:#05070C; --shadow:0 24px 60px -28px rgba(0,0,0,.8); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.stage{max-width:1240px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;grid-template-columns:minmax(0,330px) auto auto;gap:32px;justify-content:center;align-items:start}
+
+/* Пояснение */
+.intro{display:grid;gap:18px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px)}
+.badge{justify-self:start;font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:4px 10px}
+.intro h1{font-size:38px;font-weight:900;letter-spacing:-.01em}
+.intro .lead{color:var(--muted);font-size:16px}
+.field{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+.field input{font:600 15px var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.how{display:grid;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.how b{font-family:var(--display);font-size:16px}
+.how ol{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--muted)}
+.how ol b{font:600 14px var(--body);color:var(--ink)}
+.play{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 16px;font:700 15px var(--display);background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn:disabled{opacity:.55;cursor:default}
+.foot{font-size:12.5px;color:var(--muted)}
+
+/* Переключатель ролей (узкий экран) */
+.roles{display:none}
+
+/* Телефон */
+.phone-wrap{display:grid;gap:10px;justify-items:center}
+.phone-cap{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.phone{width:360px;height:740px;background:var(--frame);border-radius:46px;padding:12px;box-shadow:var(--shadow);position:relative}
+.screen{width:100%;height:100%;background:var(--surface2);border-radius:36px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:12px 26px 4px;font:600 13px var(--mono)}
+.sbar .notch{width:96px;height:24px;background:var(--frame);border-radius:14px}
+.apphead{padding:8px 18px 12px;display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:900 18px var(--display);flex:none}
+.apphead .t{min-width:0}
+.apphead .t b{display:block;font:800 16px/1.2 var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.apphead .t span{font-size:12.5px;color:var(--muted)}
+.body{flex:1;overflow-y:auto;padding:0 14px 14px;display:grid;gap:12px;align-content:start;scrollbar-width:thin}
+.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border-top:1px solid var(--line);background:var(--surface);padding:6px 6px 14px}
+.tabs button{border:0;background:transparent;border-radius:12px;padding:6px 2px;font:600 11.5px var(--body);color:var(--muted);display:grid;justify-items:center;gap:2px}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-selected="true"]{color:var(--accent)}
+.tabs .dot{position:relative}
+.tabs .dot[data-n]:not([data-n="0"])::after{content:attr(data-n);position:absolute;top:-4px;right:-10px;background:var(--accent);color:var(--accent-ink);font:700 10px var(--mono);border-radius:999px;padding:1px 5px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:10px}
+.lab{font:600 11px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.row>*{min-width:0}
+
+/* Ребёнок */
+.kid{display:flex;gap:12px;align-items:center}
+.ava{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font:800 18px var(--display);flex:none;background:var(--sky-soft);color:var(--sky)}
+.kid b{font:800 18px/1.2 var(--display)}
+.kid span{font-size:13px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font:600 13px var(--body);white-space:nowrap}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.pill.in{background:var(--ok-soft);color:var(--ok)}
+.pill.none{background:var(--warn-soft);color:var(--warn)}
+.pill.out{background:var(--sky-soft);color:var(--sky)}
+.status-big{font:800 20px/1.25 var(--display)}
+.status-big small{display:block;font:500 13px var(--body);color:var(--muted);margin-top:2px}
+
+.plan{display:grid;gap:0}
+.plan div{display:grid;grid-template-columns:52px 14px 1fr;gap:8px;align-items:start;padding:6px 0;font-size:14px}
+.plan .tm{font:600 13px var(--mono);color:var(--muted)}
+.plan .mk{width:10px;height:10px;border-radius:50%;border:2px solid var(--line);margin-top:5px}
+.plan .done .mk{background:var(--ok);border-color:var(--ok)}
+.plan .now .mk{background:var(--accent);border-color:var(--accent)}
+.plan .now span:last-child{font-weight:600}
+
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ph{aspect-ratio:1;border-radius:12px;display:grid;align-content:end;padding:6px;font:600 11px/1.2 var(--body);color:#fff;max-width:100%;position:relative;overflow:hidden}
+.ph span{position:relative;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.ph svg{position:absolute;inset:0;width:100%;height:100%}
+
+.note{background:var(--accent-soft);border-radius:14px;padding:10px 12px;font-size:14px}
+.note b{font-weight:600}
+
+.feed{display:grid;gap:8px}
+.ev{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:13.5px}
+.ev .mono{font-size:12px;color:var(--muted);padding-top:1px}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.chip{font:600 10.5px var(--mono);letter-spacing:.04em;border-radius:6px;padding:2px 6px;color:#fff}
+.chip.app{background:var(--accent);color:var(--accent-ink)} .chip.max{background:var(--max)} .chip.tg{background:var(--tg)} .chip.sms{background:var(--sms)}
+
+/* Оплата */
+.amount{font:900 30px var(--display)}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.list{display:grid}
+.list .row{padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.list .row:last-child{border-bottom:0}
+
+/* Чат */
+.msgs{display:grid;gap:8px}
+.msg{max-width:84%;padding:9px 12px;border-radius:16px;font-size:14px;background:var(--surface);border:1px solid var(--line)}
+.msg.me{justify-self:end;background:var(--sky);color:#fff;border-color:transparent}
+.msg small{display:block;font:500 11px var(--mono);opacity:.7;margin-top:3px}
+.compose{display:flex;gap:8px}
+.compose input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 12px;font:14px var(--body)}
+.compose button{border:0;background:var(--sky);color:#fff;border-radius:12px;padding:0 14px;font-weight:600}
+
+/* Настройки */
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.toggle:last-child{border-bottom:0}
+.toggle .tx{display:grid;gap:1px;min-width:0}
+.toggle .tx b{font-weight:600;font-size:14.5px}
+.toggle .tx span{font-size:12.5px;color:var(--muted)}
+.sw{appearance:none;width:44px;height:26px;border-radius:99px;background:var(--line);position:relative;flex:none;cursor:pointer;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw:checked{background:var(--ok)}
+.sw:checked::after{transform:translateX(18px)}
+.tag{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font:700 10px var(--mono);color:#fff;flex:none}
+.tag.app{background:var(--accent);color:var(--accent-ink)} .tag.max{background:var(--max)} .tag.tg{background:var(--tg)} .tag.sms{background:var(--sms)}
+.tg-line{display:flex;gap:10px;align-items:center;min-width:0}
+
+/* Педагог */
+.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.count{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.count b{display:block;font:900 24px var(--display);font-variant-numeric:tabular-nums}
+.count span{font-size:11.5px;color:var(--muted)}
+.kids{display:grid;gap:8px}
+.krow{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.krow.mine{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.krow .ava{width:38px;height:38px;border-radius:12px;font-size:15px}
+.krow .nm{min-width:0}
+.krow .nm b{display:block;font:700 14.5px var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.krow .nm span{font-size:12px;color:var(--muted)}
+.act{border:0;border-radius:10px;padding:8px 10px;font:700 13px var(--display);white-space:nowrap}
+.act.in{background:var(--ok);color:#fff}
+.act.out{background:var(--sky);color:#fff}
+.act.done{background:var(--surface2);color:var(--muted);cursor:default}
+.who{display:flex;gap:6px;flex-wrap:wrap}
+.who button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 10px;font-size:13px}
+.sent{font:500 11.5px var(--mono);color:var(--ok)}
+textarea{width:100%;min-height:90px;resize:vertical;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 12px;font:14px var(--body)}
+
+/* Уведомления поверх экрана */
+.banners{position:absolute;left:10px;right:10px;top:44px;display:grid;gap:6px;z-index:5;pointer-events:none}
+.banner{pointer-events:auto;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;padding:9px 11px;box-shadow:0 10px 30px -12px rgba(0,0,0,.4);display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;animation:drop .35s ease-out}
+.banner .tag{width:32px;height:32px}
+.banner .h{display:flex;justify-content:space-between;gap:8px;font:600 11.5px var(--mono);color:var(--muted)}
+.banner p{font-size:13.5px;line-height:1.35;margin-top:2px}
+.banner p b{font-weight:600}
+@keyframes drop{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.banner{animation:none}.sw,.sw::after{transition:none}}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+
+/* Узкие экраны */
+@media (max-width:1180px){
+  .stage{grid-template-columns:auto auto}
+  .intro{grid-column:1/-1;position:static;max-width:760px}
+}
+@media (max-width:820px){
+  .stage{grid-template-columns:minmax(0,1fr);gap:18px;padding-block:18px 32px}
+  .intro h1{font-size:30px}
+  .roles{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:8}
+  .roles button{border:0;background:transparent;border-radius:10px;padding:10px;font:700 15px var(--display);color:var(--muted)}
+  .roles button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+  .phone-wrap{justify-items:stretch}
+  .phone-cap{display:none}
+  .phone{width:100%;height:min(760px,calc(100dvh - 90px));min-height:560px;padding:0;background:transparent;box-shadow:none;border-radius:24px}
+  .screen{border-radius:24px;border:1px solid var(--line)}
+  .sbar{display:none}
+  .banners{top:10px}
+  body[data-role="parent"] #teacherWrap,body[data-role="teacher"] #parentWrap{display:none}
+}
+</style>
+
+<main class="stage">
+  <section class="intro" aria-labelledby="h1">
+    <span class="badge">Демо · данные выдуманные</span>
+    <h1 id="h1">Продлёнка в телефоне у каждого родителя</h1>
+    <p class="lead">Педагог отмечает «пришёл» и «ушёл», а родитель сразу получает уведомление туда, где ему удобно: в приложение, MAX, Telegram или SMS. Расписание дня, фото, оплата и чат с педагогом собраны в одном месте.</p>
+    <label class="field" for="centerName">Название центра для показа
+      <input id="centerName" value="Ваш центр" maxlength="40" autocomplete="off">
+    </label>
+    <div class="how">
+      <b>Как показать за минуту</b>
+      <ol>
+        <li><b>На экране педагога</b> нажмите «Пришла» у Маши Ивановой.</li>
+        <li><b>На экране мамы Маши</b> сверху появятся уведомления, а статус станет зелёным.</li>
+        <li><b>Вкладка «Уведомления»</b> у родителя: можно выбрать, куда приходят сообщения.</li>
+      </ol>
+    </div>
+    <div class="play">
+      <button class="btn" id="playBtn" type="button">Прокрутить день</button>
+      <button class="btn ghost" id="resetBtn" type="button">Сбросить</button>
+    </div>
+    <p class="foot">Демо-версия. Сообщения в MAX, Telegram и SMS здесь только показаны, по-настоящему ничего не отправляется. Работает как приложение: иконка на телефоне, без установки из магазина.</p>
+  </section>
+
+  <div class="roles" role="tablist" aria-label="Чей экран показать">
+    <button type="button" role="tab" id="roleParent" aria-selected="true">Родитель</button>
+    <button type="button" role="tab" id="roleTeacher" aria-selected="false">Педагог</button>
+  </div>
+
+  <div class="phone-wrap" id="parentWrap">
+    <span class="phone-cap">Телефон мамы</span>
+    <div class="phone"><div class="screen">
+      <div class="sbar"><span class="mono" data-clock>13:30</span><span class="notch"></span><span class="mono">5G</span></div>
+      <div class="banners" id="banners" aria-live="polite"></div>
+      <header class="apphead"><div class="logo" data-logo>В</div><div class="t"><b data-center>Ваш центр</b><span>Кабинет родителя</span></div></header>
+      <div class="body" id="parentBody"></div>
+      <nav class="tabs" role="tablist" aria-label="Разделы родителя" id="parentTabs"></nav>
+    </div></div>
+  </div>
+
+  <div class="phone-wrap" id="teacherWrap">
+    <span class="phone-cap">Телефон педагога</span>
+    <div class="phone"><div class="screen">
+      <div class="sbar"><span class="mono" data-clock>13:30</span><span class="notch"></span><span class="mono">5G</span></div>
+      <header class="apphead"><div class="logo" data-logo style="background:var(--sky);color:#fff">В</div><div class="t"><b>Группа 2 класса</b><span>Педагог Анна Сергеевна</span></div></header>
+      <div class="body" id="teacherBody"></div>
+      <nav class="tabs" role="tablist" aria-label="Разделы педагога" id="teacherTabs"></nav>
+    </div></div>
+  </div>
+</main>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const ICON={
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
+  pay:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h4"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1112 0v5l2 2H4z"/><path d="M10 20a2 2 0 004 0"/></svg>',
+  group:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 3L3 11l7 3 3 7z"/><path d="M10 14l11-11"/></svg>'
+};
+const CH={app:{n:'Приложение',s:'APP'},max:{n:'MAX',s:'MAX'},tg:{n:'Telegram',s:'TG'},sms:{n:'SMS',s:'SMS'}};
+const PLAN=[['13:30','Обед'],['14:00','Прогулка во дворе'],['15:00','Домашнее задание'],['16:30','Кружок рисования'],['17:30','Полдник, родители забирают']];
+const CHILDREN=[
+  ['masha','Маша Иванова','мама Ольга',['app','max'],1],
+  ['artem','Артём Савельев','папа Денис',['tg'],0],
+  ['varya','Варя Котова','мама Ирина',['max','sms'],1],
+  ['leva','Лёва Петров','бабушка Галина',['sms'],0],
+  ['sonya','Соня Демидова','мама Юлия',['app','tg'],1],
+  ['timur','Тимур Галиев','мама Алсу',['max'],0],
+  ['eva','Ева Белова','папа Сергей',['app'],1],
+  ['misha','Миша Жуков','мама Наталья',['max','sms'],0]
+];
+function fresh(){return{
+  clock:13*60+30,
+  ch:{app:true,max:true,tg:false,sms:false,smsImportant:true},
+  kids:CHILDREN.map(([id,name,parent,ch,f])=>({id,name,parent,ch,f,status:'none',inAt:null,outAt:null,by:null})),
+  feed:[],unread:0,
+  chat:[{me:false,t:'Добрый день! Сегодня после обеда идём на прогулку, на улице −3, оденьте, пожалуйста, Машу потеплее.',at:'12:10'},{me:true,t:'Спасибо, Анна Сергеевна! Положила варежки в рюкзак.',at:'12:14'}],
+  pTab:'home',tTab:'group',pickFor:null,lastNote:null
+};}
+let S=fresh();
+let center='Ваш центр';
+try{const v=localStorage.getItem('demo_center');if(v)center=v;}catch(e){}
+try{const q=new URLSearchParams(location.search).get('c');if(q)center=q.slice(0,40);}catch(e){}
+
+const fmt=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const initials=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2);
+const g=k=>k.f?'f':'m';
+function mine(){return S.kids[0];}
+
+function applyCenter(){
+  document.querySelectorAll('[data-center]').forEach(e=>e.textContent=center);
+  document.querySelectorAll('[data-logo]').forEach(e=>e.textContent=(center.trim()[0]||'В').toUpperCase());
+}
+function tick(){document.querySelectorAll('[data-clock]').forEach(e=>e.textContent=fmt(S.clock));}
+
+function channelsOn(){return ['app','max','tg','sms'].filter(c=>c==='sms'?S.ch.sms:S.ch[c]);}
+
+function notifyParent(text,important){
+  let chs=channelsOn();
+  if(!S.ch.sms && important && S.ch.smsImportant) chs=chs.concat('sms');
+  S.feed.unshift({at:fmt(S.clock),text,chs});
+  if(S.pTab!=='bell') S.unread++;
+  if(window.__noBanners) return chs;
+  const box=$('#banners');
+  chs.forEach((c,i)=>{
+    const el=document.createElement('div');el.className='banner';
+    el.innerHTML=`<span class="tag ${c}">${CH[c].s}</span><div><div class="h"><span>${CH[c].n} · ${esc(center)}</span><span>${fmt(S.clock)}</span></div><p>${text}</p></div>`;
+    setTimeout(()=>{box.prepend(el);while(box.children.length>(document.body.classList.contains('shot')?2:3))box.lastChild.remove();setTimeout(()=>el.remove(),6500);},i*260);
+  });
+  return chs;
+}
+
+function mark(k,kind,by){
+  if(kind==='in'){k.status='in';k.inAt=fmt(S.clock);}
+  else{k.status='out';k.outAt=fmt(S.clock);k.by=by;}
+  let sent;
+  if(k===mine()){
+    const first=esc(k.name.split(' ')[0]);
+    const txt=kind==='in'?`<b>${first} пришла</b> в центр в ${k.inAt}`
+      :(by==='сама'?`<b>${first}</b> ушла домой сама в ${k.outAt}`:`<b>${first}</b> ушла домой в ${k.outAt}. Забрал(а): ${esc(by)}`);
+    sent=notifyParent(txt,true);
+  }else sent=k.ch;
+  k.sentVia=sent;
+  render();
+}
+
+function photoTile(bg,fg,label,shape){
+  const shapes={leaf:'<path d="M20 70 C 30 30, 70 25, 80 30 C 75 60, 50 80, 20 70 Z" fill="'+fg+'"/><path d="M22 70 L70 35" stroke="'+bg+'" stroke-width="3"/>',
+    sun:'<circle cx="68" cy="34" r="16" fill="'+fg+'"/><rect x="0" y="62" width="100" height="40" fill="'+fg+'" opacity=".5"/>',
+    book:'<rect x="22" y="26" width="56" height="42" rx="4" fill="'+fg+'"/><path d="M50 26v42" stroke="'+bg+'" stroke-width="3"/>'};
+  return `<div class="ph" style="background:${bg}"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${shapes[shape]}</svg><span>${label}</span></div>`;
+}
+
+function parentHome(){
+  const k=mine();const first=k.name.split(' ')[0];
+  let pill,big;
+  if(k.status==='none'){pill='<span class="pill none">Ещё не пришла</span>';big=`${first} пока не в центре<small>Обычно приходит после 4 урока, около 13:40</small>`;}
+  else if(k.status==='in'){pill='<span class="pill in">В центре</span>';big=`${first} в центре с ${k.inAt}<small>Сейчас по плану: ${currentPlan()}</small>`;}
+  else{pill='<span class="pill out">Дома</span>';big=`${first} ушла в ${k.outAt}<small>Забрал(а): ${esc(k.by)}</small>`;}
+  const now=S.clock;
+  const plan=PLAN.map(([t,n],i)=>{const m=toMin(t),nx=PLAN[i+1]?toMin(PLAN[i+1][0]):m+60;const cls=k.status==='none'?'':(now>=nx?'done':(now>=m?'now':''));return `<div class="${cls}"><span class="tm">${t}</span><span class="mk"></span><span>${n}</span></div>`;}).join('');
+  return `
+  <div class="card">
+    <div class="kid"><div class="ava">${initials(k.name)}</div><div><b>${esc(k.name)}</b><br><span>2 «Б» · группа Анны Сергеевны</span></div></div>
+    <div style="display:grid;gap:8px;justify-items:start">${pill}<div class="status-big">${big}</div></div>
+  </div>
+  <div class="card"><span class="lab">План на сегодня</span><div class="plan">${plan}</div></div>
+  ${S.lastNote?`<div class="note"><b>Анна Сергеевна:</b> ${esc(S.lastNote)}</div>`:''}
+  <div class="card"><div class="row"><span class="lab">Фото дня</span><span class="mono" style="font-size:12px;color:var(--muted)">видят только родители группы</span></div>
+    <div class="photos">${photoTile('#E98A3A','#FFD9A8','Рисуем осень','leaf')}${photoTile('#3D8BD9','#FFE07A','Прогулка','sun')}${photoTile('#2E9D72','#E7F7EE','Читаем','book')}</div></div>`;
+}
+function currentPlan(){let c=PLAN[0][1];PLAN.forEach(([t,n])=>{if(S.clock>=toMin(t))c=n.toLowerCase();});return c;}
+function toMin(t){const [h,m]=t.split(':').map(Number);return h*60+m;}
+
+function parentPay(){
+  return `<div class="card"><span class="lab">Абонемент · ноябрь</span>
+    <div class="row"><span class="amount mono">12 400 ₽</span><span class="pill none">до 10 ноября</span></div>
+    <div class="bar"><i style="width:50%"></i></div>
+    <div class="row" style="font-size:13px;color:var(--muted)"><span>Оплачено 6 200 ₽</span><span>Осталось 6 200 ₽</span></div>
+    <button class="btn" type="button" data-pay>Оплатить 6 200 ₽</button></div>
+  <div class="card"><span class="lab">Что входит</span><div class="list">
+    <div class="row"><span>Продлёнка 13:30–18:30, 5 дней</span><span class="mono">10 400 ₽</span></div>
+    <div class="row"><span>Обед и полдник</span><span class="mono">1 400 ₽</span></div>
+    <div class="row"><span>Кружок рисования, 4 занятия</span><span class="mono">600 ₽</span></div></div></div>
+  <div class="card"><span class="lab">История</span><div class="list">
+    <div class="row"><span>1 ноября · СБП</span><span class="mono" style="color:var(--ok)">+6 200 ₽</span></div>
+    <div class="row"><span>2 октября · карта</span><span class="mono" style="color:var(--ok)">+12 400 ₽</span></div></div></div>`;
+}
+function parentChat(){
+  return `<div class="card"><span class="lab">Анна Сергеевна, педагог группы</span><div class="msgs">${S.chat.map(m=>`<div class="msg ${m.me?'me':''}">${esc(m.t)}<small>${m.at}</small></div>`).join('')}</div>
+  <form class="compose" id="pForm"><input id="pMsg" placeholder="Написать педагогу" autocomplete="off" aria-label="Сообщение педагогу"><button type="submit">Отпр.</button></form></div>`;
+}
+function parentBell(){
+  const tog=(id,c,title,sub)=>`<label class="toggle" for="sw_${id}"><span class="tg-line"><span class="tag ${c}">${CH[c].s}</span><span class="tx"><b>${title}</b><span>${sub}</span></span></span><input class="sw" type="checkbox" id="sw_${id}" data-ch="${id}" ${S.ch[id]?'checked':''}></label>`;
+  return `<div class="card"><span class="lab">Куда присылать уведомления</span>
+    ${tog('app','app','В приложение','Пуш на экран телефона, бесплатно')}
+    ${tog('max','max','MAX','Сообщение от бота центра')}
+    ${tog('tg','tg','Telegram','Сообщение от бота центра')}
+    ${tog('sms','sms','SMS о каждом событии','Доходит без интернета')}
+    <label class="toggle" for="sw_smsImportant"><span class="tx"><b>SMS только о важном</b><span>Если ребёнок не пришёл к 14:30 или его забрал не родитель</span></span><input class="sw" type="checkbox" id="sw_smsImportant" data-ch="smsImportant" ${S.ch.smsImportant?'checked':''}></label>
+  </div>
+  <div class="card"><span class="lab">Последние уведомления</span>
+    ${S.feed.length?`<div class="feed">${S.feed.slice(0,8).map(f=>`<div class="ev"><span class="mono">${f.at}</span><div>${f.text}<div class="chips">${f.chs.map(c=>`<span class="chip ${c}">${CH[c].s}</span>`).join('')}</div></div></div>`).join('')}</div>`
+      :'<p style="color:var(--muted);font-size:14px">Пока пусто. Нажмите «Пришла» у Маши на экране педагога, и здесь появится первое уведомление.</p>'}
+  </div>
+  <div class="card"><span class="lab">Кто может забирать Машу</span><div class="list">
+    <div class="row"><span>Мама, Ольга</span><span class="pill in">основной</span></div>
+    <div class="row"><span>Бабушка, Галина Петровна</span><span class="pill out">разрешено</span></div></div></div>`;
+}
+
+function teacherGroup(){
+  const n=S.kids.length,inC=S.kids.filter(k=>k.status==='in').length,outC=S.kids.filter(k=>k.status==='out').length;
+  return `<div class="counts"><div class="count"><b>${inC}</b><span>в центре</span></div><div class="count"><b>${n-inC-outC}</b><span>ещё нет</span></div><div class="count"><b>${outC}</b><span>ушли</span></div></div>
+  <div class="kids">${S.kids.map((k,i)=>{
+    let btn,sub;
+    const f=g(k)==='f';
+    if(k.status==='none'){btn=`<button class="act in" type="button" data-in="${i}">${f?'Пришла':'Пришёл'}</button>`;sub=k.parent;}
+    else if(k.status==='in'){btn=`<button class="act out" type="button" data-out="${i}">${f?'Ушла':'Ушёл'}</button>`;sub=`в центре с ${k.inAt}`;}
+    else{btn=`<span class="act done">${k.outAt}</span>`;sub=`ушёл · ${esc(k.by)}`.replace('ушёл',f?'ушла':'ушёл');}
+    const sent=k.sentVia?`<div class="sent">✓ родителю: ${k.sentVia.map(c=>CH[c].n).join(', ')}</div>`:'';
+    const pick=S.pickFor===i?`<div class="who" style="grid-column:1/-1"><span style="font-size:12.5px;color:var(--muted);width:100%">Кто забрал?</span>${['Мама','Папа','Бабушка','Сам(а) домой'].map(w=>`<button type="button" data-by="${w}">${w}</button>`).join('')}</div>`:'';
+    return `<div class="krow ${i===0?'mine':''}"><div class="ava">${initials(k.name)}</div><div class="nm"><b>${esc(k.name)}${i===0?' · демо':''}</b><span>${sub}</span>${sent}</div>${btn}${pick}</div>`;}).join('')}</div>`;
+}
+function teacherSend(){
+  return `<div class="card"><span class="lab">Сообщение родителям группы</span>
+    <textarea id="tNote" aria-label="Текст сообщения">Домашку по математике сделали все. По чтению осталось 2 страницы, дочитаем завтра.</textarea>
+    <button class="btn" type="button" data-note>Отправить 8 родителям</button>
+    <p style="font-size:12.5px;color:var(--muted)">Каждый получит туда, куда выбрал сам: в приложение, MAX, Telegram или SMS.</p></div>
+  <div class="card"><span class="lab">Быстрые шаблоны</span><div class="who">
+    ${['Идём на прогулку','Пообедали','Начали домашку','Завтра экскурсия, нужна сменка'].map(t=>`<button type="button" data-tpl="${t}">${t}</button>`).join('')}</div></div>`;
+}
+
+function tabsHTML(list,cur,role){
+  return list.map(([id,label,ic])=>`<button type="button" role="tab" aria-selected="${cur===id}" data-${role}tab="${id}"><span class="dot" ${id==='bell'?`data-n="${S.unread}"`:''}>${ICON[ic]}</span>${label}</button>`).join('');
+}
+
+function render(){
+  const pb=$('#parentBody'),tb=$('#teacherBody');
+  const pScroll=pb.scrollTop,tScroll=tb.scrollTop;
+  pb.innerHTML={home:parentHome,pay:parentPay,chat:parentChat,bell:parentBell}[S.pTab]();
+  tb.innerHTML={group:teacherGroup,send:teacherSend}[S.tTab]();
+  $('#parentTabs').innerHTML=tabsHTML([['home','Сегодня','home'],['pay','Оплата','pay'],['chat','Чат','chat'],['bell','Уведомления','bell']],S.pTab,'p');
+  $('#teacherTabs').innerHTML=tabsHTML([['group','Группа','group'],['send','Сообщить','send']],S.tTab,'t');
+  pb.scrollTop=pScroll;tb.scrollTop=tScroll;
+  tick();applyCenter();
+}
+
+let toastT;
+function toast(t){let el=$('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el);}el.textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),2600);}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.ptab){S.pTab=b.dataset.ptab;if(S.pTab==='bell')S.unread=0;render();$('#parentBody').scrollTop=0;return;}
+  if(b.dataset.ttab){S.tTab=b.dataset.ttab;render();return;}
+  if(b.dataset.in!==undefined){S.clock+=2;mark(S.kids[+b.dataset.in],'in');return;}
+  if(b.dataset.out!==undefined){S.pickFor=+b.dataset.out;render();return;}
+  if(b.dataset.by){const k=S.kids[S.pickFor];S.pickFor=null;S.clock+=3;const map={'Мама':k.parent.startsWith('мама')?k.parent:'мама','Папа':k.parent.startsWith('папа')?k.parent:'папа','Бабушка':k.parent.startsWith('бабушка')?k.parent:'бабушка','Сам(а) домой':k.f?'сама':'сам'};mark(k,'out',map[b.dataset.by]);return;}
+  if(b.dataset.tpl){const ta=$('#tNote');if(ta)ta.value=b.dataset.tpl+'.';return;}
+  if(b.dataset.note!==undefined){const t=($('#tNote').value||'').trim();if(!t){toast('Напишите текст сообщения');return;}S.lastNote=t;const chs=notifyParent(`<b>Анна Сергеевна:</b> ${esc(t)}`,false);toast('Отправлено 8 родителям');render();return;}
+  if(b.dataset.pay!==undefined){toast('В демо оплата не проводится. В настоящем приложении здесь СБП или карта.');return;}
+});
+document.addEventListener('change',e=>{
+  const c=e.target.dataset&&e.target.dataset.ch;if(!c)return;
+  S.ch[c]=e.target.checked;
+  if(!['app','max','tg','sms'].some(x=>S.ch[x])){S.ch.app=true;toast('Хотя бы один способ должен остаться включённым');render();}
+});
+document.addEventListener('submit',e=>{
+  if(e.target.id!=='pForm')return;e.preventDefault();
+  const v=$('#pMsg').value.trim();if(!v)return;
+  S.chat.push({me:true,t:v,at:fmt(S.clock)});render();
+  setTimeout(()=>{S.chat.push({me:false,t:'Хорошо, передам Маше 🙂',at:fmt(S.clock+1)});if(S.pTab==='chat')render();},1400);
+});
+
+$('#centerName').value=center;
+$('#centerName').addEventListener('input',e=>{center=e.target.value.trim()||'Ваш центр';try{localStorage.setItem('demo_center',center);}catch(err){}applyCenter();});
+
+function setRole(r){document.body.dataset.role=r;$('#roleParent').setAttribute('aria-selected',r==='parent');$('#roleTeacher').setAttribute('aria-selected',r==='teacher');}
+$('#roleParent').onclick=()=>setRole('parent');
+$('#roleTeacher').onclick=()=>setRole('teacher');
+setRole('parent');
+
+let playing=null;
+function stopPlay(){clearTimeout(playing);playing=null;$('#playBtn').disabled=false;$('#playBtn').textContent='Прокрутить день';}
+$('#playBtn').onclick=()=>{
+  S=fresh();$('#banners').innerHTML='';S.pTab='home';render();
+  $('#playBtn').disabled=true;$('#playBtn').textContent='Идёт день…';
+  const narrow=matchMedia('(max-width:820px)').matches;
+  const steps=[
+    ()=>{S.clock=13*60+38;mark(S.kids[1],'in');},
+    ()=>{S.clock=13*60+42;if(narrow)setRole('parent');mark(S.kids[0],'in');},
+    ()=>{S.clock=13*60+45;mark(S.kids[2],'in');mark(S.kids[4],'in');},
+    ()=>{S.clock=14*60+5;S.lastNote='Идём на прогулку, все тепло одеты.';notifyParent('<b>Анна Сергеевна:</b> Идём на прогулку, все тепло одеты.',false);render();},
+    ()=>{S.clock=15*60+20;S.lastNote='Домашку по математике сделали. По чтению осталось 2 страницы.';notifyParent('<b>Анна Сергеевна:</b> Домашку по математике сделали. По чтению осталось 2 страницы.',false);render();},
+    ()=>{S.clock=17*60+52;mark(S.kids[0],'out','мама Ольга');},
+    ()=>{stopPlay();toast('Так выглядит день глазами мамы');}
+  ];
+  let i=0;const run=()=>{steps[i++]();if(i<steps.length)playing=setTimeout(run,2300);};
+  playing=setTimeout(run,600);
+};
+$('#resetBtn').onclick=()=>{stopPlay();S=fresh();$('#banners').innerHTML='';render();};
+
+render();
+
+/* Режим картинок для рассылки: ?shot=1 или ?shot=2 */
+const shot=new URLSearchParams(location.search).get('shot');
+if(shot){
+  document.body.classList.add('shot');
+  const st=document.createElement('style');
+  st.textContent='.shot .intro,.shot .roles{display:none!important}.shot .stage{grid-template-columns:auto auto!important;padding-block:28px!important}.shot .banner{animation:none}';
+  document.head.appendChild(st);
+  const keep=window.setTimeout;
+  window.setTimeout=(f,ms)=>ms>=6000?0:keep(f,ms);
+  if(shot==='2') window.__noBanners=true;
+  S.clock=13*60+38;mark(S.kids[1],'in');
+  S.clock=13*60+40;mark(S.kids[2],'in');
+  S.clock=13*60+42;mark(S.kids[0],'in');
+  if(shot==='2'){
+    S.clock=15*60+20;S.lastNote='Домашку по математике сделали. По чтению осталось 2 страницы.';
+    notifyParent('<b>Анна Сергеевна:</b> Домашку по математике сделали. По чтению осталось 2 страницы.',false);
+    S.pTab='bell';S.unread=0;S.tTab='send';$('#banners').innerHTML='';render();
+  }
+}
+})();
+</script>
